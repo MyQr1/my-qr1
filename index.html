@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>OSHAcademy Student Training Verification (Demo)</title>
+
+  <!-- React 18 & Babel standalone -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Global Reset & System Font identical to WebKit/Safari mobile rendering */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #2b2b2b; /* Dark backdrop behind the document viewer container */
+      color: #000000;
+      line-height: 1.35;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Top Persistent Simulation Notice */
+    .demo-bar {
+      background: #fff3cd;
+      color: #724c00;
+      border-bottom: 1px solid #ffeeba;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 6px 12px;
+      text-align: center;
+      line-height: 1.3;
+      letter-spacing: 0.1px;
+    }
+
+    /* Outer Mobile Viewport Wrapper - matching mobile screenshot aspect ratio exactly */
+    .mobile-screen-wrapper {
+      width: 100%;
+      max-width: 414px; /* Standard iPhone viewport width */
+      background: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Embedded Document Viewer Header Bar (Dark Charcoal #333333 with toolbar icons) */
+    .pdf-viewer-bar {
+      background-color: #3b3c3e;
+      color: #e5e5e5;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      user-select: none;
+      font-size: 12px;
+    }
+
+    .pdf-viewer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pdf-counter-box {
+      background: #1e1e1e;
+      border: 1px solid #555555;
+      border-radius: 2px;
+      padding: 1px 7px;
+      color: #ffffff;
+      font-size: 11.5px;
+    }
+
+    .pdf-viewer-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 16px;
+      color: #d1d1d1;
+    }
+
+    /* Document Page Canvas: Pure white, exact padding from screenshot edges */
+    .document-page {
+      background-color: #ffffff;
+      padding: 16px 18px 24px 18px;
+      flex: 1;
+    }
+
+    /* SECTION A: Brand Header */
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-main-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: #2e4359;
+      letter-spacing: -0.6px;
+      line-height: 0.95;
+      position: relative;
+    }
+
+    .brand-main-title sup {
+      font-size: 10px;
+      font-weight: 600;
+      position: absolute;
+      top: 0;
+      right: -10px;
+    }
+
+    .brand-sub-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #2e4359;
+      letter-spacing: 0.1px;
+      margin-top: 4px;
+    }
+
+    /* Main Page Heading - Exact line breaks as in Screenshot 1 */
+    .page-title {
+      font-size: 27px;
+      font-weight: 700;
+      line-height: 1.25;
+      color: #000000;
+      margin-bottom: 18px;
+      letter-spacing: -0.3px;
+    }
+
+    /* Red/Orange Section Headings */
+    .red-heading {
+      color: #cb4322;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 6px;
+    }
+
+    .red-heading-single {
+      color: #cb4322;
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    .example-code-sub {
+      font-size: 13px;
+      color: #222222;
+      margin-bottom: 8px;
+    }
+
+    .bullet-paragraph {
+      font-size: 13.5px;
+      color: #111111;
+      line-height: 1.34;
+      margin-bottom: 10px;
+    }
+
+    .contact-paragraph {
+      font-size: 13.5px;
+      color: #111111;
+      line-height: 1.35;
+      margin-bottom: 14px;
+    }
+
+    .link-blue {
+      color: #2c59a8;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    /* Embedded Certificate Preview Container (with crisp border, signature & verification details) */
+    .certificate-preview-box {
+      border: 1px solid #bfbfbf;
+      background: #ffffff;
+      padding: 10px 12px 14px 12px;
+      margin: 12px 0 20px 0;
+      border-radius: 1px;
+      position: relative;
+    }
+
+    .cert-signature-line {
+      width: 70%;
+      border-bottom: 1px solid #111111;
+      margin-bottom: 3px;
+    }
+
+    .signature-svg {
+      width: 145px;
+      height: 38px;
+      display: block;
+    }
+
+    .cert-officer-info {
+      font-size: 10px;
+      line-height: 1.22;
+      color: #111111;
+      margin-bottom: 14px;
+    }
+
+    .cert-bottom-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cert-qr-grid {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #555555;
+      padding: 2px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      flex-shrink: 0;
+    }
+
+    .cert-qr-cell {
+      background-color: #333333;
+    }
+
+    .cert-qr-text {
+      font-size: 9.5px;
+      line-height: 1.25;
+      color: #000000;
+    }
+
+    .cert-yellow-code {
+      display: inline-block;
+      border: 1px solid #caa224;
+      background: #fdfde3;
+      font-size: 9px;
+      font-family: monospace;
+      padding: 1px 4px;
+      margin: 2px 0;
+    }
+
+    /* SECTION B: Validation Status */
+    .validation-status-heading {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #000000;
+      margin-bottom: 6px;
+    }
+
+    .status-lead-bold {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.35;
+      color: #000000;
+      margin-bottom: 4px;
+    }
+
+    .status-body-text {
+      font-size: 13.5px;
+      color: #111111;
+      line-height: 1.35;
+      margin-bottom: 12px;
+    }
+
+    /* Gray Student Information Panel - Identical spacing and corner radius */
+    .student-info-panel {
+      background-color: #e8e8e8;
+      border: 1px solid #dcdcdc;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .panel-block {
+      margin-bottom: 9px;
+    }
+
+    .panel-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .panel-label {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #000000;
+      line-height: 1.2;
+    }
+
+    .panel-value {
+      font-size: 14px;
+      font-weight: 400;
+      color: #111111;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    /* SECTION C: Green Status Banner & Verify Form */
+    .valid-code-banner {
+      background-color: #cde2bd;
+      border-radius: 3px;
+      padding: 7px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #3b6b27;
+      margin-bottom: 14px;
+    }
+
+    .valid-code-banner.alert-invalid {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+
+    .banner-check-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .verification-form-area {
+      margin-bottom: 22px;
+    }
+
+    .verification-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111111;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .verification-input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid #7f7f7f;
+      border-radius: 1px;
+      padding: 4px 8px;
+      font-size: 14px;
+      color: #111111;
+      background: #ffffff;
+      outline: none;
+      margin-bottom: 10px;
+    }
+
+    .verification-input:focus {
+      border-color: #4c80b8;
+    }
+
+    .btn-verify-blue {
+      background-color: #4c80b8;
+      color: #ffffff;
+      border: none;
+      border-radius: 3px;
+      padding: 6px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .btn-verify-blue:active {
+      background-color: #38679c;
+    }
+
+    /* SECTION D: Student Survey */
+    .survey-block {
+      border-top: 1px solid #f0f0f0;
+      padding-top: 10px;
+      margin-bottom: 24px;
+    }
+
+    .survey-heading {
+      color: #cb4322;
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .survey-subhead-bold {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #000000;
+      margin-bottom: 8px;
+    }
+
+    .survey-text-p {
+      font-size: 13.5px;
+      line-height: 1.38;
+      color: #111111;
+      margin-bottom: 9px;
+    }
+
+    .survey-action-link {
+      display: inline-block;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #2c59a8;
+      text-decoration: underline;
+      margin-top: 2px;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .sign-off {
+      font-size: 13.5px;
+      line-height: 1.35;
+      color: #111111;
+    }
+
+    /* SECTION E: Dark Navy Footer (as seen in screenshot 2) */
+    .navy-footer {
+      background-color: #2e3d50;
+      color: #ffffff;
+      padding: 22px 18px 30px 18px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .footer-copy-text {
+      margin-bottom: 12px;
+      font-weight: 400;
+    }
+
+    .footer-links-row {
+      color: #6ea4db;
+    }
+
+    .footer-links-row a {
+      color: #6ea4db;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .footer-demo-disclaimer {
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      font-size: 10.5px;
+      color: #9cb3ce;
+      line-height: 1.35;
+    }
+
+    /* Survey Feedback Modal Dialog */
+    .survey-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .survey-modal {
+      background: #ffffff;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 360px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+    }
+
+    .survey-modal h3 {
+      color: #cb4322;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .survey-modal textarea {
+      width: 100%;
+      height: 70px;
+      margin: 10px 0 12px 0;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+  const { useState } = React;
+
+  // Local fictional sample database
+  const SAMPLE_DATABASE = {
+    "1662031-100-954-365": {
+      student: "Mostafa mohamed ebrahim mohamed",
+      atp: "EHS-Ace (Demo Partner)",
+      program: "30 hour Construction Safety and Health (Demo)",
+      completionDate: "21/5/2023",
+      status: "valid"
+    },
+    "122-45-789162": {
+      student: "Sample Student Two (Demo)",
+      atp: "General Industry ATP (Demo)",
+      program: "10 hour General Industry Standards (Demo)",
+      completionDate: "15/2/2024",
+      status: "valid"
+    }
+  };
+
+  function VerificationPage() {
+    // Exact verification code from Screenshot 2
+    const [code, setCode] = useState("1662031-100-954-365");
+    const [record, setRecord] = useState(SAMPLE_DATABASE["1662031-100-954-365"]);
+    const [isSurveyOpen, setIsSurveyOpen] = useState(false);
+    const [surveySent, setSurveySent] = useState(false);
+
+    const handleVerify = (e) => {
+      e.preventDefault();
+      const trimmed = code.trim();
+      if (SAMPLE_DATABASE[trimmed]) {
+        setRecord(SAMPLE_DATABASE[trimmed]);
+      } else {
+        setRecord({
+          student: "No Record Found",
+          atp: "N/A",
+          program: "Fictional code not matched in demo dataset",
+          completionDate: "N/A",
+          status: "invalid"
+        });
+      }
+    };
+
+    return (
+      <div className="mobile-screen-wrapper">
+        {/* Top Disclaimer for safety / simulated experience */}
+        <div className="demo-bar" role="note">
+          ⚠️ SIMULATION PORTAL — Pure layout reproduction. Not affiliated with or endorsed by OSHAcademy or OSHA. All data is fictional.
+        </div>
+
+        {/* Embedded Viewer Header (matching Screenshot 1 top toolbar) */}
+        <div className="pdf-viewer-bar" aria-hidden="true">
+          <div className="pdf-viewer-left">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"/>
+            </svg>
+            <div className="pdf-counter-box">1 of 1</div>
+          </div>
+          <div className="pdf-viewer-right">
+            <span>−</span>
+            <span>+</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+          </div>
+        </div>
+
+        {/* White Document Body */}
+        <div className="document-page">
+          
+          {/* SECTION A: Brand Header */}
+          <div className="brand-container">
+            <svg className="brand-logo" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo emblem">
+              <path d="M60 10 C65 40, 100 50, 95 85 C90 115, 60 125, 60 125 C60 125, 30 115, 25 85 C20 50, 55 40, 60 10Z" fill="#E86C28" />
+              <path d="M60 45 C63 60, 80 70, 75 90 C70 108, 60 115, 60 115 C60 115, 50 108, 45 90 C40 70, 57 60, 60 45Z" fill="#FBB03B" />
+              <path d="M25 105 L95 105 L90 125 L30 125 Z" fill="#2E3D50" />
+              <circle cx="45" cy="115" r="3" fill="#ffffff" />
+              <circle cx="60" cy="115" r="3" fill="#ffffff" />
+              <circle cx="75" cy="115" r="3" fill="#ffffff" />
+            </svg>
+            <div className="brand-copy">
+              <div className="brand-main-title">
+                OSHAcademy<sup>®</sup>
+              </div>
+              <div className="brand-sub-title">
+                Occupational Safety & Health Training
+              </div>
+            </div>
+          </div>
+
+          {/* Heading Line breaks matched exactly to Screenshot 1 */}
+          <h1 className="page-title">
+            OSH Academy<br />
+            StudentTraining<br />
+            Verification
+          </h1>
+
+          <h2 className="red-heading">
+            Does your certificate have a<br />
+            "Validation Code"?
+          </h2>
+          <div className="example-code-sub">example: 122-45-789162</div>
+
+          <p className="bullet-paragraph">
+            . If your certificate does not contain a validation code (training completed before February 18, 2017), please verify your training here.-
+          </p>
+
+          <p className="bullet-paragraph">
+            . If your certificate does have a validation code (training completed after February 15, 2017), please enter the code in the form below.
+          </p>
+
+          <h2 className="red-heading-single">
+            Questions?
+          </h2>
+          <p className="contact-paragraph">
+            Please contact our offices at{" "}
+            <a href="mailto:support@oshacademy-demo.invalid" className="link-blue">
+              support@oshacademy-demo.invalid
+            </a>{" "}
+            or call +1 (971) 217-8721
+          </p>
+
+          {/* Certificate Diagram preview box */}
+          <div className="certificate-preview-box">
+            <div className="cert-signature-line">
+              <svg className="signature-svg" viewBox="0 0 170 45">
+                <path d="M10 32 Q 35 12, 55 30 T 95 18 T 135 30 T 160 14" fill="none" stroke="#234263" strokeWidth="2" strokeLinecap="round" />
+                <path d="M38 12 L 46 38 M 72 10 L 80 36" fill="none" stroke="#234263" strokeWidth="1.5" />
+              </svg>
+            </div>
+            <div className="cert-officer-info">
+              <strong>J. Geigle, M.A., CET, CSHM</strong><br />
+              Training Director<br />
+              Academy Safety & Health Training
+            </div>
+            <div className="cert-bottom-row">
+              <div className="cert-qr-grid">
+                <div className="cert-qr-cell"></div><div></div><div className="cert-qr-cell"></div>
+                <div></div><div className="cert-qr-cell"></div><div></div>
+                <div className="cert-qr-cell"></div><div></div><div className="cert-qr-cell"></div>
+              </div>
+              <div className="cert-qr-text">
+                Certificates can be validated through the official website.<br />
+                <span className="cert-yellow-code">Validation Code: 12345-45-701-a1b2c</span><br />
+                www.oshacademy-atp.com/verify
+              </div>
+            </div>
+          </div>
+
+          {/* SECTION B: Validation Status */}
+          <h2 className="validation-status-heading">
+            Validation Status
+          </h2>
+          <p className="status-lead-bold">
+            Please verify the information below matches the information on the certificate being validated
+          </p>
+          <p className="status-body-text">
+            <strong>A certificate is only valid if the information</strong> matches the information provided below.
+          </p>
+
+          {/* Gray Information Panel */}
+          <div className="student-info-panel" role="region" aria-label="Simulated Student Information">
+            <div className="panel-block">
+              <div className="panel-label">Student</div>
+              <div className="panel-value">{record.student}</div>
+            </div>
+            <div className="panel-block">
+              <div className="panel-label">ATP</div>
+              <div className="panel-value">{record.atp}</div>
+            </div>
+            <div className="panel-block">
+              <div className="panel-label">Program</div>
+              <div className="panel-value">{record.program}</div>
+            </div>
+            <div className="panel-block">
+              <div className="panel-label">Completion Date</div>
+              <div className="panel-value">{record.completionDate}</div>
+            </div>
+          </div>
+
+          {/* SECTION C: Green Banner & Verification Field (Screenshot 2) */}
+          {record.status === "valid" ? (
+            <div className="valid-code-banner">
+              <span>Verification Code is valid</span>
+              <svg className="banner-check-icon" viewBox="0 0 24 24" fill="none" stroke="#3b6b27" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+          ) : (
+            <div className="valid-code-banner alert-invalid">
+              <span>Verification Code not recognized (Demo)</span>
+            </div>
+          )}
+
+          <form onSubmit={handleVerify} className="verification-form-area">
+            <label htmlFor="verif-input" className="verification-label">
+              Verification Code
+            </label>
+            <input
+              id="verif-input"
+              type="text"
+              className="verification-input"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="e.g. 1662031-100-954-365"
+              required
+            />
+            <div>
+              <button type="submit" className="btn-verify-blue">
+                Verify
+              </button>
+            </div>
+          </form>
+
+          {/* SECTION D: Student Survey */}
+          <div className="survey-block">
+            <h2 className="survey-heading">
+              Student Survey
+            </h2>
+            <div className="survey-subhead-bold">
+              We need your help!
+            </div>
+            <p className="survey-text-p">
+              This survey is an opportunity for you to share your experience and have your voice heard.
+            </p>
+            <p className="survey-text-p">
+              We understand your busy schedule. This survey should only take about 2 minutes to complete. The information that you share with us is always kept confidential and will only be used to help shape the future of OSHAcademy ATP Training.
+            </p>
+            <p className="survey-text-p">
+              We really appreciate your participation and value your input.
+            </p>
+
+            <a
+              href="#survey-dialog"
+              className="survey-action-link"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsSurveyOpen(true);
+              }}
+            >
+              Click here to begin the survey
+            </a>
+
+            <div className="sign-off">
+              Thanks so much!<br />
+              OSHAcademy
+            </div>
+          </div>
+
+        </div>
+
+        {/* SECTION E: Dark Navy Footer (matching Screenshot 2) */}
+        <footer className="navy-footer">
+          <div className="footer-copy-text">
+            ©Copyright 2025 OSHAcademy Safety and Health Training. All Rights Reserved. |{" "}
+            <span className="footer-links-row">
+              <a href="#terms" onClick={(e) => e.preventDefault()}>Website Terms of Use Agreement</a>
+            </span>
+          </div>
+
+          <div className="footer-demo-disclaimer">
+            NOTICE: Independent frontend replication of the mobile verification interface for portfolio and responsive layout evaluation purposes. Not connected to any backend databases or real identity records.
+          </div>
+        </footer>
+
+        {/* Working Demo Survey Modal */}
+        {isSurveyOpen && (
+          <div className="survey-overlay" role="dialog" aria-modal="true">
+            <div className="survey-modal">
+              <h3>Student Survey (Demo)</h3>
+              {!surveySent ? (
+                <>
+                  <p style={{ fontSize: "13.5px", color: "#333" }}>
+                    How would you rate your simulated training verification experience?
+                  </p>
+                  <textarea placeholder="Your simulated feedback..." />
+                  <div className="modal-actions">
+                    <button
+                      type="button"
+                      className="btn-verify-blue"
+                      style={{ background: "#888888" }}
+                      onClick={() => setIsSurveyOpen(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-verify-blue"
+                      onClick={() => setSurveySent(true)}
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: "13.5px", color: "#333", margin: "10px 0" }}>
+                    Thank you! Your demo feedback has been recorded locally.
+                  </p>
+                  <div className="modal-actions">
+                    <button
+                      type="button"
+                      className="btn-verify-blue"
+                      onClick={() => {
+                        setIsSurveyOpen(false);
+                        setSurveySent(false);
+                      }}
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<VerificationPage />);
+</script>
+
+</body>
+</html>
